@@ -60,20 +60,47 @@ module NotesHelper
     note.project.team.human_max_access(note.author_id)
   end
 
-  def discussion_diff_path(discussion)
-    if discussion.for_merge_request? && discussion.diff_discussion?
+  def merge_request_version_params_for(merge_request, discussion)
+    if discussion.legacy_diff_discussion?
       if discussion.active?
-        # Without a diff ID, the link always points to the latest diff version
-        diff_id = nil
-      elsif merge_request_diff = discussion.latest_merge_request_diff
-        diff_id = merge_request_diff.id
+        {}
       else
-        # If the discussion is not active, and we cannot find the latest
-        # merge request diff for this discussion, we return no path at all.
-        return
+        nil
+      end
+    else
+      diff_refs = discussion.position.diff_refs
+      @merge_request_version_params ||= Hash.new do |h1, merge_request|
+        diffs = merge_request.merge_request_diffs.viewable.select_without_diff
+
+        h1[merge_request] = Hash.new do |h2, diff_refs|
+          h2[diff_refs] =
+            if diff_refs == merge_request.diff_sha_refs
+              {}
+            elsif diff = diffs.find_by_diff_refs(diff_refs)
+              { diff_id: diff.id }
+            elsif diff = diffs.find_by(head_commit_sha: diff_refs.head_sha)
+              {
+                diff_id: diff.id,
+                start_sha: diff_refs.start_sha
+              }
+            else
+              nil
+            end
+        end
       end
 
-      diffs_namespace_project_merge_request_path(discussion.project.namespace, discussion.project, discussion.noteable, diff_id: diff_id, anchor: discussion.line_code)
+      @merge_request_version_params[merge_request][diff_refs]
+    end
+  end
+
+  def discussion_diff_path(discussion)
+    if discussion.for_merge_request? && discussion.diff_discussion?
+      version_params = discussion.merge_request_version_params
+      return unless version_params
+
+      path_params = version_params.merge(anchor: discussion.line_code)
+
+      diffs_namespace_project_merge_request_path(discussion.project.namespace, discussion.project, discussion.noteable, path_params)
     elsif discussion.for_commit?
       anchor = discussion.line_code if discussion.diff_discussion?
 

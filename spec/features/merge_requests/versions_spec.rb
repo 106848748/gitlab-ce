@@ -36,8 +36,8 @@ feature 'Merge Request versions', js: true, feature: true do
       expect(page).to have_content '5 changed files'
     end
 
-    it 'show the message about disabled comment creation' do
-      expect(page).to have_content 'comment creation is disabled'
+    it 'show the message about comments' do
+      expect(page).to have_content 'Not all comments are displayed'
     end
 
     it 'shows comments that were last relevant at that version' do
@@ -80,8 +80,8 @@ feature 'Merge Request versions', js: true, feature: true do
       end
     end
 
-    it 'show the message about disabled comments' do
-      expect(page).to have_content 'Comments are disabled'
+    it 'show the message about comments' do
+      expect(page).to have_content 'Not all comments are displayed'
     end
 
     it 'show diff between new and old version' do
