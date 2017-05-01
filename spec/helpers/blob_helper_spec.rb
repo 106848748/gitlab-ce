@@ -145,7 +145,7 @@ describe BlobHelper do
         end
       end
 
-      context 'for error :server_side_but_stored_in_lfs' do
+      context 'for error :server_side_but_stored_externally' do
         let(:blob) { fake_blob(lfs: true) }
 
         it 'returns an error message' do

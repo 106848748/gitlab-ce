@@ -41,19 +41,11 @@ class SnippetBlob
     # No-op
   end
 
-  def lfs_pointer?
-    false
-  end
-
-  def lfs_oid
-    nil
-  end
-
-  def lfs_size
-    nil
-  end
-
   def truncated?
     false
+  end
+
+  def external_storage
+    nil
   end
 end

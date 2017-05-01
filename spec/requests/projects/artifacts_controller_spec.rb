@@ -103,7 +103,7 @@ describe Projects::ArtifactsController do
         end
 
         it 'redirects' do
-          path = file_namespace_project_build_artifacts_path(
+          path = raw_namespace_project_build_artifacts_path(
             project.namespace,
             project,
             build,
